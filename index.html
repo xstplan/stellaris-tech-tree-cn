@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width">
-    <title>Stellaris Tech Trees</title>
+    <title>群星科技树</title>
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
 
@@ -33,14 +33,14 @@
       <p class="node-name" title="{{:name}}">{{:name}}</p>
       <p class="node-title">
       {{if tier < 1}}
-        {{:category}}  - <span class="tier tier-0">Starting</span>
+        {{:category}}  - <span class="tier tier-0">初始</span>
       {{else}}
-        {{:category}} - <span class="tier tier-{{:tier}}">Tier {{:tier}}</span>
+        {{:category}} - <span class="tier tier-{{:tier}}">等级 {{:tier}}</span>
       {{/if}}
       </p>
       <p class="node-desc">
       {{if tier > 0}}
-      Cost: <span class="{{:area}}-research">{{:cost}}, Weight: {{:base_weight}}</span>
+      花费：<span class="{{:area}}-research">{{:cost}}，权重：{{:base_weight}}</span>
       {{/if}}
       </p>
       <p class="node-desc" style="color:yellow">
@@ -77,18 +77,18 @@
       </p>
       <div class="node-status"></div>
       <div class="extra-data">
-      <div class="tooltip-header">Description</div>
+      <div class="tooltip-header">描述</div>
       <div class="tooltip-content" style="max-width:320px">{{:description}}</div>
       {{if weight_modifiers.length > 0}}
-          <div class="tooltip-header">Weight Modifiers</div>
+          <div class="tooltip-header">权重修正</div>
           <div class="tooltip-content"><pre>{{:weight_modifiers.join('<br/>')}}</pre></div>
       {{/if}}
       {{if potential.length > 0}}
-          <div class="tooltip-header">Requirements</div>
+          <div class="tooltip-header">前置条件</div>
           <div class="tooltip-content"><pre>{{:potential.join('<br/>')}}</pre></div>
       {{/if}}
       {{if prerequisites.length > 1}}
-          <div class="tooltip-header">Required Technologies</div>
+          <div class="tooltip-header">所需科技</div>
           <div class="tooltip-content prerequisites">
           {{for prerequisites}}
               <img class="left {{:}}" height="52" width="52" src="//:0" data-src="../assets/img/{{:}}.png"">
@@ -101,7 +101,7 @@
           </div>
       {{/if}}
       {{if feature_unlocks.length > 0}}
-          <div class="tooltip-header">Research Effects</div>
+          <div class="tooltip-header">研究效果</div>
           <div class="tooltip-content">{{:feature_unlocks.join('<br/>')}}</div>
       {{/if}}
       </div>
@@ -138,7 +138,7 @@
 
     <script>
       window.routes = [
-          { name: 'Phoenix 4.0.10', route: 'phoenix-4.0.10', title: 'Stellaris 4.0.10 (Phoenix)', },
+          { name: '4.0.10（Phoenix）', route: 'phoenix-4.0.10', title: '群星 4.0.10（Phoenix）', },
           { name: 'Circinus 3.14.1', route: 'circinus-3.14.1', title: 'Stellaris 3.14.1 (Circinus)', },
           { name: 'Andromeda 3.12.2', route: 'andromeda-3.12.2', title: 'Stellaris 3.12.2 (Andromeda)', },
           { name: 'Orion 3.6.0',   route: 'orion-3.6.0',       title: 'Stellaris 3.6.0 (Orion)', },
@@ -168,13 +168,13 @@
 
 </head>
     <body>
-      <b>Technology</b>
+      <b>科技树</b>
       <ul id="tech-pages">
       </ul>
 
-      <b>Job List</b>
+      <b>岗位列表</b>
       <ul>
-        <li><a href="jobs/index.html">Stellaris 2.2.7 Jobs List (WIP)</a></li>
+        <li><a href="jobs/index.html">Stellaris 2.2.7 岗位列表（WIP）</a></li>
       </ul>
 
       <p>

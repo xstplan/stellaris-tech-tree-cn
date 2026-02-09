@@ -1,6 +1,7 @@
 'use strict';
 
 var research = ['physics', 'society', 'engineering', 'anomaly'];
+var i18n = null;
 
 var config = {
     //container: '#tech-tree-',
@@ -68,7 +69,49 @@ function init_tooltips() {
     });
 }
 
+function load_i18n(done) {
+    $.getJSON('i18n.zh-hans.json', function(data) {
+        i18n = data || {};
+        done();
+    }).fail(function() {
+        done();
+    });
+}
+
+function translate_lines(lines) {
+    if(!i18n || !i18n.line || !Array.isArray(lines)) return lines;
+    return lines.map(line => i18n.line[line] || line);
+}
+
+function apply_i18n(tech) {
+    if(!i18n || !tech) return;
+
+    if(tech.key && i18n.tech && i18n.tech[tech.key]) {
+        const t = i18n.tech[tech.key];
+        if(t.name) tech.name = t.name;
+        if(t.description) tech.description = t.description;
+    }
+
+    if(tech.category && i18n.category && i18n.category[tech.category]) {
+        tech.category = i18n.category[tech.category];
+    }
+
+    if(Array.isArray(tech.prerequisites_names) && i18n.tech) {
+        tech.prerequisites_names.forEach(p => {
+            if(p && p.key && i18n.tech[p.key] && i18n.tech[p.key].name) {
+                p.name = i18n.tech[p.key].name;
+            }
+        });
+    }
+
+    tech.feature_unlocks = translate_lines(tech.feature_unlocks);
+    tech.weight_modifiers = translate_lines(tech.weight_modifiers);
+    tech.potential = translate_lines(tech.potential);
+}
+
 function setup(tech) {
+    apply_i18n(tech);
+
     var techClass = (tech.is_dangerous ? ' dangerous' : '')
         + (!tech.is_dangerous && tech.is_rare ? ' rare' : '');
 
@@ -76,7 +119,7 @@ function setup(tech) {
     var html = tmpl.render(tech);
 
     tech.HTMLid = tech.key;
-    tech.HTMLclass = tech.area + techClass + (tech.is_start_tech ? ' active' : '');
+    tech.HTMLclass = tech.area + techClass + (tech.is_start_tech ? ' active starting' : '');
 
     var output = html;
     if(tech.is_start_tech) {
@@ -206,14 +249,16 @@ function setup_search() {
 
 
 $(document).ready(function() {
-    load_tree();
+    load_i18n(function() {
+        load_tree();
 
-    let checkExist = setInterval(() => {
-        if (document.querySelector('#tech-tree')) {
-           clearInterval(checkExist);
-           setup_search();
-        };
-    }, 100)
+        let checkExist = setInterval(() => {
+            if (document.querySelector('#tech-tree')) {
+               clearInterval(checkExist);
+               setup_search();
+            };
+        }, 100)
+    });
 });
 
 function _load(jsonData, tree) {

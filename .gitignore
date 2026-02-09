@@ -3,3 +3,4 @@
 .devcontainer
 _site
 icons_convert
+**/i18n.zh-hans.json
