@@ -133,7 +133,7 @@ var offlineDB;
 function initDB() {
     var request = window.indexedDB.open("researchDB");
     request.onerror = function(event) {
-        alert('无法保存多套研究进度（IndexedDB 权限未授予）。将改用本地存储。');
+        alert('Unable to store more than one set of research unless permission is approved!');
         if(window.localStorage) {
             setupLocalStorage();
         }
@@ -204,7 +204,7 @@ function saveListToIndexedDB(name) {
 
         var data = [];
         research.forEach(area => {
-            $('.' + area + ' div.node-status.active').parent().not('.starting').each(function() {
+            $('.' + area + ' div.node-status.active').parent().not(':contains(\\(Starting\\))').each(function() {
                 data.push({key: $(this).attr('id'), area: area});
             });
         });
@@ -214,7 +214,7 @@ function saveListToIndexedDB(name) {
         var result = objectStore.put({name: name, data: data});
         result.onsuccess = function(event) {
             if(event.target.result && name == event.target.result) {
-                alert('研究列表已保存：' + name);
+                alert('Research List: ' + name + ' was saved successfully!')
                 return true;
             }
         };
@@ -232,7 +232,7 @@ function loadListFromIndexedDB(name) {
             if(event.target.result && event.target.result.data) {
                 var data = event.target.result.data;
                 research.forEach(area => {
-                    $('.' + area + ' div.node-status.active').parent().not('.starting').each(function() {
+                    $('.' + area + ' div.node-status.active').parent().not(':contains(\\(Starting\\))').each(function() {
                         updateResearch(area, $(this).attr('id'), false);
                         $(this).find('div.node-status').removeClass('active');
                     });
@@ -248,12 +248,12 @@ function loadListFromIndexedDB(name) {
                 });
             }
             else {
-                event.target.errorCode = `研究列表“${name}”不存在。`
+                event.target.errorCode = `Research list "${name}" does not exist.`
                 result.onerror(event);
             }
         };
         result.onerror = function(event) {
-            alert('无法载入研究列表：' + name + '\n错误：' + event.target.errorCode);
+            alert('Unable to load Research List: ' + name + '\nError: ' + event.target.errorCode);
         }
     } else {
         initDB();
@@ -294,7 +294,7 @@ function saveResearchToLocalStorage() {
     var data = {};
     research.forEach(area => {
         var activeTech = [];
-        $('.' + area + ' div.node-status.active').parent().not('.starting').each(function() {
+        $('.' + area + ' div.node-status.active').parent().not(':contains(\\(Starting\\))').each(function() {
             activeTech.push($(this).attr('id'));
         });
         data[area] = activeTech;
@@ -311,6 +311,6 @@ function loadResearchFromLocalStorage() {
             charts[area].tree.reload();
         });
     } else {
-        alert("无法从本地存储读取数据！");
+        alert("Unable to load data from local storage!");
     }
 }

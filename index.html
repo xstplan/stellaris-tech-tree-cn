@@ -110,34 +110,37 @@
     <script>
       addEventListener('popstate', event => window.location.reload());
       const load_page = (param, title) => {
+        const cacheBuster = Date.now();
         history.pushState({pageID: param}, param, `${param}/`);
         document.title = title || param;
         $('<link>').appendTo('head').attr({
             type: 'text/css', 
             rel: 'stylesheet',
-            href: '../assets/css/tech-tree.css'
+            href: `../assets/css/tech-tree.css?v=${cacheBuster}`
         });
         $('body').load('../assets/html/body.html', function() {
-            $('<script>').appendTo('head').attr({ src: '../assets/js/header.js' });
-            $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tracking.js' });
-            $('<script>').appendTo('head').attr({ src: '../assets/js/tech-tree.js' });
+            $('<script>').appendTo('head').attr({ src: `../assets/js/header.js?v=${cacheBuster}` });
+            $('<script>').appendTo('head').attr({ src: `../assets/js/tech-tracking.js?v=${cacheBuster}` });
+            $('<script>').appendTo('head').attr({ src: `../assets/js/tech-tree.js?v=${cacheBuster}` });
         });
       };
     </script>
 
     <script>
       $(document).ready(function(){
-        if (window.location.search) {
-          const page = window.routes.find(r => r.route === window.location.search.slice(1));
-          if (page) {
-            load_page(page.route, page.title);
-          }
+        const defaultRoute = 'phoenix-4.0.10';
+        const requestedRoute = window.location.search ? window.location.search.slice(1) : defaultRoute;
+        const page = window.routes.find(r => r.route === requestedRoute)
+          || window.routes.find(r => r.route === defaultRoute);
+        if (page) {
+          load_page(page.route, page.title);
         }
       });
     </script>
 
     <script>
       window.routes = [
+          { name: '4.3.0（Cetus）', route: 'cetus-4.3.0', title: '群星 4.3.0（Cetus）', },
           { name: '4.0.10（Phoenix）', route: 'phoenix-4.0.10', title: '群星 4.0.10（Phoenix）', },
           { name: 'Circinus 3.14.1', route: 'circinus-3.14.1', title: 'Stellaris 3.14.1 (Circinus)', },
           { name: 'Andromeda 3.12.2', route: 'andromeda-3.12.2', title: 'Stellaris 3.12.2 (Andromeda)', },
