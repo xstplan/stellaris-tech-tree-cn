@@ -313,6 +313,11 @@ def _normalize_mixed_line(line: str) -> str:
         "[farmer.GetIcon]": "£job_farmer£",
         "[miner.GetIcon]": "£job_miner£",
         "[foundry.GetIcon]": "£job_foundry£",
+        "[GetArtisanIcon]": "£job_artisan£",
+        "[GetArtisan]": "工匠",
+        "[GetSpecialist]": "专家",
+        "[GetWorker]": "劳工",
+        "[GetCrimeDeviancy]": "犯罪度/反常度",
         "[GetTechnicianPlural]": "技工岗位",
         "[GetFarmerPlural]": "农夫岗位",
         "[GetMinerPlural]": "矿工岗位",
@@ -332,6 +337,8 @@ def _normalize_mixed_line(line: str) -> str:
     }
     for source, target in dynamic_token_map.items():
         out = out.replace(source, target)
+    out = re.sub(r"\[Get([^\]]+?)Icon\]\s*", "", out)
+    out = re.sub(r"\[Get([^\]]+?)\]", r"\1", out)
     out = re.sub(r"\[Get([^\]]+?)Swap复数形式WithIcon\]", r"\1岗位", out)
     out = re.sub(r"\[Get([^\]]+?)复数形式WithIcon\]", r"\1岗位", out)
     out = re.sub(r"\[Get([^\]]+?)SwapPluralWithIcon\]", r"\1岗位", out)
@@ -349,6 +356,31 @@ def _normalize_mixed_line(line: str) -> str:
         out = out.replace(source, target)
 
     phrase_replacements = [
+        (r"\bBuild\s+Cost\b", "建造花费"),
+        (r"\bThe\s+Empire\s+Size\s+Effect\s+is\s+modified\s+by\b", "帝国规模效应修正为"),
+        (r"\bCan\s+research\s+technology\b", "可研究科技"),
+        (r"\bAI\s+Personality\b", "AI性格"),
+        (r"\bCrisis\s+level\b", "危机等级"),
+        (
+            r"\bIs\s+a\s+Member\s+of\s+a\s+spiritualist\s+Federation\s+with\s+perk\s+'A\s+Union\s+of\s+Faith'\b",
+            "是拥有“信仰同盟”特典的唯心主义联邦成员",
+        ),
+        (r"\bASTRAL_RIFT\b", "星界裂隙"),
+        (r"\bastral\s+scar\b", "星界裂痕"),
+        (r"\bSpecies\s+Leader\s+Exp\s+Gain\b", "物种领袖经验获取"),
+        (r"\bEmpire\s+Size\s+from\s+Pops\b", "人口导致的帝国规模"),
+        (r"\bUrban\s+District\s+Housing\b", "都市区划住房"),
+        (r"\bPop\s+Resource\s+Output\b", "人口资源产出"),
+        (r"\bJob\s+Efficiency\b", "岗位效率"),
+        (r"\bMajor\s+Capital\s+Buildings\b", "主都建筑"),
+        (r"\bUpgraded\s+Capital\s+Buildings\b", "升级首都建筑"),
+        (r"\bCapital\s+Buildings\b", "首都建筑"),
+        (r"\bMind\s+over\s+Matter\b", "超凡入圣"),
+        (r"\bTeachers\s+of\s+the\s+Shroud\b", "虚境导师"),
+        (r"\bGenome\s+Mapping\b", "基因测绘"),
+        (r"\bHas\s+DLC\s+Astral\s+Planes\b", "拥有 DLC 星界位面"),
+        (r"\bHas\s+DLC\s+Biogenesis\b", "拥有 DLC 生体进化"),
+        (r"\bHas\s+DLC\s+Megacorp\b", "拥有 DLC 巨型企业"),
         (r"\bHas\s+encountered\s+a\s+", "\u906d\u9047\u8fc7"),
         (r"\bHas\s+encountered\b", "\u906d\u9047\u8fc7"),
         (r"\u62e5\u6709\s+encountered\s+a\s+", "\u906d\u9047\u8fc7"),
@@ -375,6 +407,31 @@ def _normalize_mixed_line(line: str) -> str:
         (r"\u63a7\u5236\s+a\s+system\s+with\s+a\s+\u5929\u7136\u866b\u6d1e", "\u63a7\u5236\u6709\u5929\u7136\u866b\u6d1e\u7684\u661f\u7cfb"),
         (r"\bencountered\s+is\s+lower\s+than\b", "\u906d\u9047\u6b21\u6570\u5c0f\u4e8e"),
         (r"\bencountered\s+is\s+greater\s+than\b", "\u906d\u9047\u6b21\u6570\u5927\u4e8e"),
+        (r"\bNumber\s+of\s+years\s+since\s+game\s+start\b", "\u5f00\u5c40\u540e\u5e74\u6570"),
+        (r"\byears\s+since\s+game\s+start\b", "\u5f00\u5c40\u540e\u5e74\u6570"),
+        (r"\u6570\u91cf\s+years\s+since\s+game\s+start\b", "\u5f00\u5c40\u540e\u5e74\u6570"),
+        (r"\bNumber\s+of\b", "\u6570\u91cf"),
+        (r"\bPop\s+count\b", "\u4eba\u53e3\u6570\u91cf"),
+        (r"\blevel\b", "\u7b49\u7ea7"),
+        (r"\bin\s+nebula\b", "\u4f4d\u4e8e\u661f\u4e91\u4e2d"),
+        (r"\barchetype\b", "\u539f\u578b"),
+        (r"\bcommunications\b", "\u901a\u8baf"),
+        (r"\ba\s+number\s+of\s+pop\b", "\u4eba\u53e3\u6570\u91cf"),
+        (r"\bexists\b", "\u5b58\u5728"),
+        (r"\bsubject\b", "\u9644\u5c5e\u56fd"),
+        (r"\bwithin\s+borders\b", "\u5883\u5185"),
+        (r"\bin\s+construction\b", "\u5728\u5efa\u9020\u4e2d"),
+        (r"\bdisabled\b", "\u5df2\u7981\u7528"),
+        (r"\bopen\s+ascension\s+perk\s+slots\b", "\u53ef\u7528\u98de\u5347\u5929\u8d4b\u69fd\u4f4d"),
+        (r"\bCountry\s+does\s+NOT\s+use\s+biological\s+ships\b", "\u56fd\u5bb6\u4e0d\u4f7f\u7528\u751f\u7269\u8230\u8239"),
+        (r"\bCountry\s+uses\s+biological\s+ships\b", "\u56fd\u5bb6\u4f7f\u7528\u751f\u7269\u8230\u8239"),
+        (r"\ba\s+bulwark\s+\(specialised\s+subject\)", "\u5821\u5792\u5b50\u56fd"),
+        (r"\ba\s+prospectorium\s+\(specialised\s+subject\)", "\u52d8\u63a2\u5b50\u56fd"),
+        (r"\ba\s+scholarium\s+\(specialised\s+subject\)", "\u5b66\u8005\u5b50\u56fd"),
+        (r"\bLaw\s+None\b", "\u6cd5\u5f8b\uff1a\u65e0"),
+        (r"\bLarge\b", "\u5927\u578b"),
+        (r"\bMedium\b", "\u4e2d\u578b"),
+        (r"\bSmall\b", "\u5c0f\u578b"),
         (r"\bis\s+greater\s+than\s+or\s+equal\s+to\b", "\u5927\u4e8e\u7b49\u4e8e"),
         (r"\bis\s+lower\s+than\s+or\s+equal\s+to\b", "\u5c0f\u4e8e\u7b49\u4e8e"),
         (r"\bis\s+greater\s+than\b", "\u5927\u4e8e"),
@@ -386,6 +443,78 @@ def _normalize_mixed_line(line: str) -> str:
         out = re.sub(pattern, target, out, flags=re.IGNORECASE)
 
     token_replacements = [
+        ("Blue Eye Beam", "蓝色眼光束"),
+        ("Gamma Eye Beam", "伽马眼光束"),
+        ("UV Eye Beam", "紫外眼光束"),
+        ("X-Ray Eye Beam", "X射线眼光束"),
+        ("Orbital Growth Chamber", "轨道生长舱"),
+        ("Calamity", "灾厄"),
+        ("Danger", "危险"),
+        ("Existential Threat", "生存威胁"),
+        ("Risk", "风险"),
+        ("Cuthuloids", "克苏鲁体"),
+        ("Arc Furnace", "电弧熔炉"),
+        ("Borehole Pumps", "钻孔泵"),
+        ("Equatorial Band", "赤道带"),
+        ("Mohole Extractors", "莫霍开采机"),
+        ("Dyson Swarm: Constellation", "戴森蜂群：星群"),
+        ("Dyson Swarm: Array", "戴森蜂群：阵列"),
+        ("Mega Shipyard Core", "巨型船坞核心"),
+        ("Mega Shipyard Framework", "巨型船坞框架"),
+        ("Mega Shipyard Site", "巨型船坞工地"),
+        ("Quantum Catapult Single Array", "量子弹弓单阵列"),
+        ("Quantum Catapult Twin Arrays", "量子弹弓双阵列"),
+        ("Quantum Catapult Site", "量子弹弓工地"),
+        ("Strategic Coordination Center Site", "战略协调中心工地"),
+        ("Matter Decompressor Site", "物质解压器工地"),
+        ("Grand Archive", "博物天枢"),
+        ("Megastructure", "巨型结构"),
+        ("Single", "单"),
+        ("Twin", "双"),
+        ("Ruined", "损毁"),
+        ("Accelerated Juvenile Growth Gland", "加速幼体生长腺体"),
+        ("Juvenile Growth Gland", "幼体生长腺体"),
+        ("Mature Growth Gland", "成熟生长腺体"),
+        ("Ancient Energised Carapace", "远古充能甲壳"),
+        ("Autonomous Ship Intellect", "自主舰船智能"),
+        ("Bio-Swarmer Missiles", "生物蜂群导弹"),
+        ("Bio-Whirlwind Missiles", "生物旋风导弹"),
+        ("Improved Rangefinder Cluster", "改良测距集群"),
+        ("Rapid Incubation Matrix", "快速孵化矩阵"),
+        ("Large Nanite Quill Battery", "大型纳米棘刺炮组"),
+        ("Medium Nanite Quill Battery", "中型纳米棘刺炮组"),
+        ("Small Nanite Quill Battery", "小型纳米棘刺炮组"),
+        ("Large Ripper Quill Battery", "大型撕裂棘刺炮组"),
+        ("Medium Ripper Quill Battery", "中型撕裂棘刺炮组"),
+        ("Small Ripper Quill Battery", "小型撕裂棘刺炮组"),
+        ("Large Stormfire Quill Battery", "大型风暴火棘刺炮组"),
+        ("Medium Stormfire Quill Battery", "中型风暴火棘刺炮组"),
+        ("Small Stormfire Quill Battery", "小型风暴火棘刺炮组"),
+        ("Advanced Combat Computer", "先进作战电脑"),
+        ("Sapient Combat Computer", "智慧型作战电脑"),
+        ("Combat Computer", "作战电脑"),
+        ("Bio-Hyperlane Field III", "生物超空间航道场 III"),
+        ("Hyper Drive III", "超空间引擎 III"),
+        ("NEUROCHIPS", "神经芯片"),
+        ("Large UV Beam Projector", "大型紫外光束投射器"),
+        ("Medium UV Beam Projector", "中型紫外光束投射器"),
+        ("Small UV Beam Projector", "小型紫外光束投射器"),
+        ("Starbase", "恒星基地"),
+        ("Module", "模块"),
+        ("Upgrade", "升级"),
+        ("Country", "国家"),
+        ("Perk", "特典"),
+        ("Array", "阵列"),
+        ("Arrays", "阵列"),
+        ("Site", "站点"),
+        ("Battery", "电池"),
+        ("Capacity", "容量"),
+        ("Offspring", "后代"),
+        ("Quill", "棘刺"),
+        ("Sapient", "智慧"),
+        ("Nanite", "纳米"),
+        ("Ripper", "撕裂"),
+        ("Stormfire", "风暴火"),
         ("bypass_lgate", "L-\u661f\u95e8"),
         ("bypass_relay_bypass", "\u4e2d\u7ee7\u5668\u901a\u9053"),
         ("default", "\u5e38\u89c4\u5e1d\u56fd"),
@@ -408,6 +537,59 @@ def _normalize_mixed_line(line: str) -> str:
     out = out.replace("贸易 from", "贸易产自")
     out = out.replace("产自 £job£ Jobs", "来自£job£岗位")
     out = out.replace("来自£job£ Jobs", "来自£job£岗位")
+    out = re.sub(r"([\u4e00-\u9fff])s\b", r"\1", out)
+    out = out.replace("数量 of ", "数量")
+    out = out.replace("国家 uses ", "国家使用")
+    out = out.replace("生物 ships", "生物舰船")
+    out = out.replace("playable 帝国 met", "可游玩帝国已接触数量")
+    out = out.replace("Percentage of ", "")
+    out = out.replace("the completed_", "已完成_")
+    out = out.replace(" completed ", " 已完成 ")
+    out = out.replace("Mind over 物质", "超凡入圣")
+    out = out.replace("Feature: ", "特性：")
+    out = out.replace("Output ", "产出 ")
+    out = out.replace("蓝眼光线", "蓝色眼光束")
+    out = out.replace("伽马眼光线", "伽马眼光束")
+    out = out.replace("紫外眼光线", "紫外眼光束")
+    out = out.replace("X射线眼光线", "X射线眼光束")
+    out = out.replace("帝国规模 from Pops", "人口导致的帝国规模")
+    out = out.replace("Urban 区划 住房", "都市区划住房")
+    out = out.replace("物种 领袖 Exp Gain", "物种领袖经验获取")
+    out = out.replace("犯罪度反常度", "犯罪度/反常度")
+    out = out.replace("工虫人口资源产出", "劳工人口资源产出")
+    out = out.replace("阿斯特拉l Planes", "星界位面")
+    out = out.replace("DLC 远古 遗珍 Story Pack", "DLC 远古遗物故事包")
+    out = out.replace("£轻度_artifacts£", "£minor_artifacts£")
+    out = out.replace("Major 首都 建筑", "主都建筑")
+    out = out.replace("国家 does 不 use 生物舰船", "国家不使用生物舰船")
+    out = out.replace("建造 Cost", "建造花费")
+    out = out.replace("建造 花费：", "建造花费：")
+    out = out.replace("建造 速度", "建造速度")
+    out = re.sub(r"The\s+帝国规模\s+效果\s+是\s+改造的\s+by", "帝国规模效应修正为", out)
+    out = re.sub(r"不\s+AI性格\s+是\s+排外孤立主义", "AI性格不是排外孤立主义", out)
+    out = out.replace(" 单 阵列", "单阵列")
+    out = out.replace(" 双 阵列", "双阵列")
+    out = re.sub(r"a\s+bulwark\s+\([^)]*附属国\)", "堡垒子国", out, flags=re.IGNORECASE)
+    out = re.sub(r"a\s+prospectorium\s+\([^)]*附属国\)", "勘探子国", out, flags=re.IGNORECASE)
+    out = re.sub(r"a\s+scholarium\s+\([^)]*附属国\)", "学者子国", out, flags=re.IGNORECASE)
+    out = re.sub(
+        r"a\s+bulwark\s+\(specialised\s+附属国\)",
+        "堡垒子国",
+        out,
+        flags=re.IGNORECASE,
+    )
+    out = re.sub(
+        r"a\s+prospectorium\s+\(specialised\s+附属国\)",
+        "勘探子国",
+        out,
+        flags=re.IGNORECASE,
+    )
+    out = re.sub(
+        r"a\s+scholarium\s+\(specialised\s+附属国\)",
+        "学者子国",
+        out,
+        flags=re.IGNORECASE,
+    )
 
     return out
 
@@ -542,6 +724,8 @@ def main(argv: list[str]) -> int:
         "Ship": "舰船",
         "Ship Size": "舰船尺寸",
         "Starbase Building": "恒星基地建筑",
+        "Starbase Module": "恒星基地模块",
+        "Starbase Upgrade": "恒星基地升级",
         "Army": "陆军",
         "Policy": "政策",
         "Planetary Feature": "行星特征",
@@ -562,15 +746,55 @@ def main(argv: list[str]) -> int:
             return resolve_zh_text(zh[lk])
         return None
 
+    def alias_unlock_items(item: str) -> list[str]:
+        return [item]
+
+    def translate_sized_item(item: str) -> str | None:
+        sized = re.match(r"^(Small|Medium|Large)\s+(.+)$", item)
+        if not sized:
+            return None
+        size_en = sized.group(1)
+        base_en = sized.group(2)
+        size_map = {
+            "Small": "小型",
+            "Medium": "中型",
+            "Large": "大型",
+        }
+        size_zh = size_map.get(size_en)
+        if not size_zh:
+            return None
+
+        if base_en.endswith("Beam Projector"):
+            core_en = base_en[: -len("Beam Projector")].strip()
+            core_zh = translate_value(f"{core_en} Laser") or translate_value(core_en)
+            if core_zh:
+                core_zh = re.sub(r"^(大型|中型|小型)", "", core_zh)
+                core_zh = re.sub(r"激光器?$", "", core_zh)
+                return f"{size_zh}{core_zh}光束投射器"
+
+        base_candidates = [base_en]
+
+        for base_candidate in base_candidates:
+            base_zh = translate_value(base_candidate)
+            if not base_zh:
+                continue
+            base_zh = re.sub(r"^(大型|中型|小型)", "", base_zh)
+            return f"{size_zh}{base_zh}"
+        return None
+
     def translate_line_exact(line: str) -> str | None:
         m = unlock_re.match(line)
         if m:
             line_type = m.group(1).strip()
             item = m.group(2).strip()
             line_type_zh = type_map.get(line_type, line_type)
-            item_zh = translate_value(item)
+            item_zh = translate_sized_item(item)
             if item_zh:
                 return f"<b>{line_type_zh}</b>：{item_zh}"
+            for candidate in alias_unlock_items(item):
+                item_zh = translate_value(candidate)
+                if item_zh:
+                    return f"<b>{line_type_zh}</b>：{item_zh}"
             if line_type_zh != line_type:
                 return f"<b>{line_type_zh}</b>：{item}"
             return None
@@ -602,6 +826,81 @@ def main(argv: list[str]) -> int:
         translated = _apply_dsl_keywords(_normalize_mixed_line(translated))
         if translated != raw_line:
             line_map[raw_line] = translated
+
+    manual_line_overrides = {
+        "One must be true\n    •   Has Spiritualist Ethic\n    •   Has Fanatic Spiritualist Ethic\n    •   All must be true\n\t    •   Does NOT have Gestalt Consciousness Ethic\n\t    •   Is a Member of a spiritualist Federation with perk 'A Union of Faith'":
+            "以下条件至少一个满足\n    •   拥有 唯心主义 思潮\n    •   拥有 极端唯心主义 思潮\n    •   以下条件全部满足\n\t    •   没有 格式塔意识 思潮\n\t    •   是拥有“信仰同盟”特典的唯心主义联邦成员",
+        "(×<b style='color:red'>0.025</b>) Does NOT have Crisis level: Calamity":
+            "(×<b style='color:red'>0.025</b>) 没有 危机等级: 灾厄",
+        "(×<b style='color:red'>0.025</b>) Does NOT have Crisis level: Existential Threat":
+            "(×<b style='color:red'>0.025</b>) 没有 危机等级: 生存威胁",
+        "(×<b style='color:red'>0.0</b>) All must be false<br/>    •   Any Owned Planet<br/>\t    •   One must be true<br/>\t\t    •   Has deposit Isolated Valley<br/>\t\t    •   Has deposit Avian Reserve<br/>\t\t    •   Any owned Population Group:<br/>\t\t\t    •   One must be true<br/>\t\t\t\t    •   Pop is NOT Sapient<br/>\t\t\t\t    •   Is livestock<br/>\t\t\t\t    •   Is TODO":
+            "(×<b style='color:red'>0.0</b>) 以下条件全部为否<br/>    •   任意所属行星<br/>\t    •   以下条件至少一个满足<br/>\t\t    •   拥有矿藏 偏僻山谷<br/>\t\t    •   拥有矿藏 鸟类保护区<br/>\t\t    •   任意 已拥有 人口 团体:<br/>\t\t\t    •   以下条件至少一个满足<br/>\t\t\t\t    •   人口 不是 智慧物种<br/>\t\t\t\t    •   是 牲畜<br/>\t\t\t\t    •   是 待定",
+        "(×<b style='color:red'>0.0</b>) All must be false<br/>    •   Has Crisis level: Calamity<br/>    •   Has Enigmatic Engineering Ascension Perk":
+            "(×<b style='color:red'>0.0</b>) 以下条件全部为否<br/>    •   拥有 危机等级: 灾厄<br/>    •   拥有 天机工程 飞升天赋",
+        "(×<b style='color:red'>0.0</b>) All must be false<br/>    •   Has Crisis level: Existential Threat<br/>    •   Has Enigmatic Engineering Ascension Perk":
+            "(×<b style='color:red'>0.0</b>) 以下条件全部为否<br/>    •   拥有 危机等级: 生存威胁<br/>    •   拥有 天机工程 飞升天赋",
+        "(×<b style='color:red'>0.1</b>) Number of buildings lower than 1<br/>    •   Type is Faculty of Archaeostudies<br/>    •   Is NOT disabled<br/>    •   Is NOT in construction":
+            "(×<b style='color:red'>0.1</b>) 建筑数量小于 1<br/>    •   类型是 远古学院<br/>    •   未禁用<br/>    •   不在建造中",
+        "<b>Component</b>: Bio-Hyperlane Field III":
+            "<b>组件</b>：生物超空间航道场 III",
+        "<b>Component</b>: Hyper Drive III":
+            "<b>组件</b>：超空间引擎 III",
+        "One must be true\n    •   One must be true\n\t    •   Has encountered Tiyanki\n\t    •   Has encountered Space Amoeba\n\t    •   Has encountered Crystalline Entity\n\t    •   Has encountered Voidworms\n\t    •   Has encountered Cuthuloids\n    •   One must be true\n\t    •   Has Government Civic: Beastmasters\n\t    •   Has Government Civic: Wild Swarm\n\t    •   Has Government Civic: Biodrones\n\t    •   Has Government Civic: Space Ranchers":
+            "以下条件至少一个满足\n    •   以下条件至少一个满足\n\t    •   遭遇过 缇扬奇\n\t    •   遭遇过 太空变形虫\n\t    •   遭遇过 晶态实体\n\t    •   遭遇过 虚空虫\n\t    •   遭遇过 克苏鲁体\n    •   以下条件至少一个满足\n\t    •   拥有 政府 国民理念: 万兽之王\n\t    •   拥有 政府 国民理念: 荒野蜂群\n\t    •   拥有 政府 国民理念: 生态无人机\n\t    •   拥有 政府 国民理念: 太空牧场",
+    }
+    line_map.update(manual_line_overrides)
+
+    for raw_line, translated in list(line_map.items()):
+        fixed = translated
+        if "A Union of Faith" in raw_line:
+            fixed = (
+                "以下条件至少一个满足\n"
+                "    •   拥有 唯心主义 思潮\n"
+                "    •   拥有 极端唯心主义 思潮\n"
+                "    •   以下条件全部满足\n"
+                "\t    •   没有 格式塔意识 思潮\n"
+                "\t    •   是拥有“信仰同盟”特典的唯心主义联邦成员"
+            )
+        if raw_line.startswith("(×<b style='color:red'>0.1</b>) Number of buildings lower than 1"):
+            fixed = (
+                "(×<b style='color:red'>0.1</b>) 建筑数量小于 1<br/>"
+                "    •   类型是 远古学院<br/>"
+                "    •   未禁用<br/>"
+                "    •   不在建造中"
+            )
+        if raw_line == "<b>Component</b>: Bio-Hyperlane Field III":
+            fixed = "<b>组件</b>：生物超空间航道场 III"
+        if raw_line == "<b>Component</b>: Hyper Drive III":
+            fixed = "<b>组件</b>：超空间引擎 III"
+        if "Has encountered Cuthuloids" in raw_line:
+            fixed = (
+                "以下条件至少一个满足\n"
+                "    •   以下条件至少一个满足\n"
+                "\t    •   遭遇过 缇扬奇\n"
+                "\t    •   遭遇过 太空变形虫\n"
+                "\t    •   遭遇过 晶态实体\n"
+                "\t    •   遭遇过 虚空虫\n"
+                "\t    •   遭遇过 克苏鲁体\n"
+                "    •   以下条件至少一个满足\n"
+                "\t    •   拥有 政府 国民理念: 万兽之王\n"
+                "\t    •   拥有 政府 国民理念: 荒野蜂群\n"
+                "\t    •   拥有 政府 国民理念: 生态无人机\n"
+                "\t    •   拥有 政府 国民理念: 太空牧场"
+            )
+        if "AI Personality is Xenophobic Isolationists" in raw_line:
+            fixed = fixed.replace("不 AI性格 是 排外孤立主义", "AI性格不是排外孤立主义")
+        if raw_line == "The Empire Size Effect is modified by: -5%":
+            fixed = "帝国规模效应修正为: -5%"
+        fixed = fixed.replace("天灾 等级", "危机等级")
+        fixed = fixed.replace("卡拉姆ity", "灾厄")
+        fixed = fixed.replace("Existential 威胁", "生存威胁")
+        fixed = fixed.replace("Pop 不是 智慧", "人口 不是 智慧物种")
+        fixed = fixed.replace("是 livestock", "是 牲畜")
+        fixed = fixed.replace("是 TODO", "是 待定")
+        fixed = fixed.replace(" 建造花费", "建造花费")
+        fixed = fixed.replace(" 建造速度", "建造速度")
+        line_map[raw_line] = fixed
 
     payload = {
         "version": str(args.phoenix_dir),
