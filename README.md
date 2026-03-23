@@ -27,4 +27,4 @@
 - `python scripts/translate_cn.py --version cetus-4.3.0 --stellaris-dir "X:\\SteamLibrary\\steamapps\\common\\Stellaris"`
 
 ## 说明注意
-- `i18n.zh-hans.json` 默认在 `.gitignore` 中，不会被提交，需要自行生成，需要安装python。
+- `i18n.zh-hans.json` 已默认提交，如需要生成新的，自行生成，需要安装python。
