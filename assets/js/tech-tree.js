@@ -85,6 +85,8 @@ function _normalizeMixedLine(line) {
         out = out.split(key).join(resourceTokenMap[key]);
     });
     var regexRules = [
+        [/\bHas\s+the\s+has_market_access\s+country\s+flag\b/gi, '\u5df2\u83b7\u5f97\u5e02\u573a\u51c6\u5165'],
+        [/\bDoes\s+NOT\s+have\s+the\s+has_market_access\s+country\s+flag\b/gi, '\u672a\u83b7\u5f97\u5e02\u573a\u51c6\u5165'],
         [/\bBuild\s+Cost\b/gi, '\u5efa\u9020\u82b1\u8d39'],
         [/\bThe\s+Empire\s+Size\s+Effect\s+is\s+modified\s+by\b/gi, '\u5e1d\u56fd\u89c4\u6a21\u6548\u5e94\u4fee\u6b63\u4e3a'],
         [/\bCan\s+research\s+technology\b/gi, '\u53ef\u7814\u7a76\u79d1\u6280'],
@@ -132,10 +134,15 @@ function _normalizeMixedLine(line) {
         [/控制\s+a\s+system\s+with\s+a\s+天然虫洞/g, '控制有天然虫洞的星系'],
         [/\bencountered\s+is\s+lower\s+than\b/gi, '遭遇次数小于'],
         [/\bencountered\s+is\s+greater\s+than\b/gi, '遭遇次数大于'],
+        [/\bNumber\s+of\s+conditions\s+true\s+is\s+greater\s+than\s+or\s+equal\s+to\b/gi, '满足条件数量不少于'],
+        [/\bNumber\s+of\s+conditions\s+true\s+greater\s+than\s+or\s+equal\s+to\b/gi, '满足条件数量不少于'],
+        [/\bNumber\s+of\s+conditions\s+true\s+大于等于\b/gi, '满足条件数量不少于'],
         [/\bNumber\s+of\s+years\s+since\s+game\s+start\b/gi, '开局后年数'],
         [/\byears\s+since\s+game\s+start\b/gi, '开局后年数'],
         [/数量\s+years\s+since\s+game\s+start\b/g, '开局后年数'],
         [/\bNumber\s+of\b/gi, '数量'],
+        [/数量\s+conditions\s+true\s+大于等于\b/g, '满足条件数量不少于'],
+        [/数量\s+conditions\s+true\b/g, '满足条件数量'],
         [/\bPop\s+count\b/gi, '人口数量'],
         [/\blevel\b/gi, '等级'],
         [/\bin\s+nebula\b/gi, '位于星云中'],
@@ -323,7 +330,10 @@ function _normalizeMixedLine(line) {
     out = out.replace(/a bulwark \(specialised \u9644\u5c5e\u56fd\)/gi, '\u5821\u5792\u5b50\u56fd');
     out = out.replace(/a prospectorium \(specialised \u9644\u5c5e\u56fd\)/gi, '\u52d8\u63a2\u5b50\u56fd');
     out = out.replace(/a scholarium \(specialised \u9644\u5c5e\u56fd\)/gi, '\u5b66\u8005\u5b50\u56fd');
+    out = out.replace(/\u62e5\u6709 has_market_access \u56fd\u5bb6\u6807\u8bc6/g, '\u5df2\u83b7\u5f97\u5e02\u573a\u51c6\u5165');
+    out = out.replace(/\u6ca1\u6709 has_market_access \u56fd\u5bb6\u6807\u8bc6/g, '\u672a\u83b7\u5f97\u5e02\u573a\u51c6\u5165');
 
+    out = out.replace(/\u6ee1\u8db3\u6761\u4ef6\u6570\u91cf\u4e0d\u5c11\u4e8e\s*(\d+)/g, '\u4e0b\u5217\u6761\u4ef6\u81f3\u5c11\u6ee1\u8db3 $1 \u9879');
     return out;
 }
 

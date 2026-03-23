@@ -249,6 +249,8 @@ def _apply_official_phrases(
 def _apply_dsl_keywords(line: str) -> str:
     out = line
     replacements: list[tuple[str, str]] = [
+        (r"\bHas\s+the\s+has_market_access\s+country\s+flag\b", "已获得市场准入"),
+        (r"\bDoes\s+NOT\s+have\s+the\s+has_market_access\s+country\s+flag\b", "未获得市场准入"),
         (r"\bOne\s+must\s+be\s+true\b", "以下条件至少一个满足"),
         (r"\bAll\s+must\s+be\s+true\b", "以下条件全部满足"),
         (r"\bAll\s+must\s+be\s+false\b", "以下条件全部为否"),
@@ -265,7 +267,7 @@ def _apply_dsl_keywords(line: str) -> str:
         (r"\bNumber\s+of\s+owned\s+planets\s+is\s+lower\s+than\b", "已拥有行星数量小于"),
         (r"\bNumber\s+of\s+communications\s+is\s+greater\s+than\b", "已建立通讯数量大于"),
         (r"\bNumber\s+of\s+communications\s+is\s+lower\s+than\b", "已建立通讯数量小于"),
-        (r"\bNumber\s+of\s+conditions\s+true\s+greater\s+than\s+or\s+equal\s+to\b", "为真的条件数量大于等于"),
+        (r"\bNumber\s+of\s+conditions\s+true\s+greater\s+than\s+or\s+equal\s+to\b", "满足条件数量不少于"),
         (r"\bPop\s+count\s+is\s+greater\s+than\s+or\s+equal\s+to\b", "人口数量大于等于"),
         (r"\bPop\s+count\s+is\s+greater\s+than\b", "人口数量大于"),
         (r"\bIs\s+of\s+country\s+type\b", "国家类型为"),
@@ -381,6 +383,9 @@ def _normalize_mixed_line(line: str) -> str:
         (r"\bHas\s+DLC\s+Astral\s+Planes\b", "拥有 DLC 星界位面"),
         (r"\bHas\s+DLC\s+Biogenesis\b", "拥有 DLC 生体进化"),
         (r"\bHas\s+DLC\s+Megacorp\b", "拥有 DLC 巨型企业"),
+        (r"\bNumber\s+of\s+conditions\s+true\s+is\s+greater\s+than\s+or\s+equal\s+to\b", "满足条件数量不少于"),
+        (r"\bNumber\s+of\s+conditions\s+true\s+greater\s+than\s+or\s+equal\s+to\b", "满足条件数量不少于"),
+        (r"\bNumber\s+of\s+conditions\s+true\s+大于等于\b", "满足条件数量不少于"),
         (r"\bHas\s+encountered\s+a\s+", "\u906d\u9047\u8fc7"),
         (r"\bHas\s+encountered\b", "\u906d\u9047\u8fc7"),
         (r"\u62e5\u6709\s+encountered\s+a\s+", "\u906d\u9047\u8fc7"),
@@ -411,6 +416,8 @@ def _normalize_mixed_line(line: str) -> str:
         (r"\byears\s+since\s+game\s+start\b", "\u5f00\u5c40\u540e\u5e74\u6570"),
         (r"\u6570\u91cf\s+years\s+since\s+game\s+start\b", "\u5f00\u5c40\u540e\u5e74\u6570"),
         (r"\bNumber\s+of\b", "\u6570\u91cf"),
+        (r"\u6570\u91cf\s+conditions\s+true\s+\u5927\u4e8e\u7b49\u4e8e\b", "\u6ee1\u8db3\u6761\u4ef6\u6570\u91cf\u4e0d\u5c11\u4e8e"),
+        (r"\u6570\u91cf\s+conditions\s+true\b", "\u6ee1\u8db3\u6761\u4ef6\u6570\u91cf"),
         (r"\bPop\s+count\b", "\u4eba\u53e3\u6570\u91cf"),
         (r"\blevel\b", "\u7b49\u7ea7"),
         (r"\bin\s+nebula\b", "\u4f4d\u4e8e\u661f\u4e91\u4e2d"),
@@ -591,6 +598,9 @@ def _normalize_mixed_line(line: str) -> str:
         flags=re.IGNORECASE,
     )
 
+    out = out.replace("拥有 has_market_access 国家标识", "已获得市场准入")
+    out = out.replace("没有 has_market_access 国家标识", "未获得市场准入")
+    out = re.sub(r"满足条件数量不少于\s*(\d+)", r"下列条件至少满足 \1 项", out)
     return out
 
 

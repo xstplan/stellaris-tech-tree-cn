@@ -28,4 +28,3 @@
 
 ## 说明注意
 - `i18n.zh-hans.json` 默认在 `.gitignore` 中，不会被提交，需要自行生成，需要安装python。
-
